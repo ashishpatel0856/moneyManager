@@ -78,21 +78,24 @@ public class ProfileService {
     }
 
 
-    public Map<String,Object> authenticateAndGenerateToken(AuthDto authDto) {
+    public Map<String, Object> authenticateAndGenerateToken(AuthDto authDto) {
         try{
               authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword()));
 
               // generate jwt token
             String token = jwtUtil.generateToken(authDto.getEmail());
             return Map.of(
-                    "token","token",
+                    "token",token,
                     "user", userDetailsService.getPublicProfile(authDto.getEmail()
             ));
+
 
         } catch (Exception e){
             throw new BadCredentialsException("Invalid username or password");
 
         }
     }
+
+
 
 }
