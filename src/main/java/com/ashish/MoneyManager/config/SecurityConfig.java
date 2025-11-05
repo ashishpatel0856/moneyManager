@@ -1,5 +1,6 @@
 package com.ashish.MoneyManager.config;
 
+import com.ashish.MoneyManager.security.JwtRequestFilter;
 import com.ashish.MoneyManager.service.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,6 +30,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final AppUserDetailsService userDetailsService;
+    private final JwtRequestFilter jwtRequestFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
    httpSecurity.cors(Customizer.withDefaults())
@@ -35,7 +38,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->auth.requestMatchers("/status","/health","/request","/login","/register","/activate").permitAll()
                         .anyRequest().authenticated())
 
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+        .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
         return httpSecurity.build();
 
     }
