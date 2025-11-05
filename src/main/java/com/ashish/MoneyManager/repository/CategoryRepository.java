@@ -14,4 +14,10 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
 //    select * from categories where id =?1 and profile_id = ?2
     Optional<CategoryEntity> findByIdAndProfileId(Long id , Long profileId);
 
+//    select * from categories where type =? 1 and profile_id = ?2
+   List<CategoryEntity>  findByTypeAndProfileId(String type ,Long profileId);
+
+
+   Boolean existByNameAndProfileId(String name ,Long profileId);
+
 }
