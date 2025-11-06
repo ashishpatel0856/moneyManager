@@ -1,8 +1,6 @@
 package com.ashish.MoneyManager.controller;
 
 import com.ashish.MoneyManager.dto.CategoryDto;
-import com.ashish.MoneyManager.dto.ProfileDto;
-import com.ashish.MoneyManager.entity.ProfileEntity;
 import com.ashish.MoneyManager.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
