@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -24,8 +23,8 @@ public class NotificationService {
 
     @Value("${money.manager.fronted.url}")
     private String frontendUrl;
-
-    @Scheduled(cron = "0 0 22 * * *",zone ="IST" )//10pm
+    @Scheduled(cron = "0 * * * * *",zone ="IST" )
+//    @Scheduled(cron = "0 0 22 * * *",zone ="IST" )//10pm
     public void sendDailyIncomeExpenseReminder(){
         log.info("job started: sendDailyIncomeExpenseReminder()");
         List<ProfileEntity> profiles = profileRepository.findAll();
@@ -40,7 +39,8 @@ public class NotificationService {
         log.info("job finished: sendDailyIncomeExpenseReminder()");
 
     }
-    @Scheduled(cron = "0 0 23 * * *",zone ="IST" )
+    @Scheduled(cron = "0 * * * * *",zone ="IST" )
+//    @Scheduled(cron = "0 0 23 * * *",zone ="IST" )
     public void sendDailyExpenseSummary(){
         log.info("job started: sendDailyExpenseSummary()");
         List<ProfileEntity> profiles = profileRepository.findAll();
@@ -49,8 +49,23 @@ public class NotificationService {
         if(!todaysExpenses.isEmpty()){
             StringBuilder table = new StringBuilder();
             table.append("<table style='border-collapse:collapse; width:100%;'>");
+            table.append("<tr style='background-color:#f2f2f2;'><th style='border:1px solid #ddd;padding:8px;'>S.NO.</th><th style='border:1px solid #ddd;padding:8px;'>Name</th><th style='border:1px solid #ddd;padding:8px;'>Amount</th><th style='border:1px solid #ddd;padding:8px;'>Date</th></tr>");
+            int i=1;
+            for(ExpenseDto expense : todaysExpenses){
+                table.append("<tr>");
+                table.append("<td style='border:1px solid #ddd; padding:8px;'>").append(i++).append("</td>");
+                table.append("<td style='border:1px solid #ddd; padding:8px;'>").append(expense.getName()).append("</td>");
+                table.append("<td style='border:1px solid #ddd; padding:8px;'>").append(expense.getAmount()).append("</td>");
+                table.append("<td style='border:1px solid #ddd; padding:8px;'>").append(expense.getCategoryId()!=null ?expense.getCategoryName():"N/A").append("</td>");
+                table.append("</tr>");
+            }
+            table.append("</table>");
+            String body ="Hi " + profile.getFullName()+",<br><br> Here is a summary of your expenses for today:<br><br/>"+table+"<br><br/> Best regards,<br/>Money Manager Team";
+            emailService.sendEmail(profile.getEmail(), "Your daily Expense summary", body);
         }
 
+
         }
+        log.info("job completed: sendDailyExpenseSummary()");
     }
 }
