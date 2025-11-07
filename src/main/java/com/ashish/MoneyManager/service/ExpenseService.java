@@ -4,19 +4,61 @@ import com.ashish.MoneyManager.dto.ExpenseDto;
 import com.ashish.MoneyManager.entity.CategoryEntity;
 import com.ashish.MoneyManager.entity.ExpenseEntity;
 import com.ashish.MoneyManager.entity.ProfileEntity;
+import com.ashish.MoneyManager.repository.CategoryRepository;
 import com.ashish.MoneyManager.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ExpenseService {
     private final ExpenseRepository expenseRepository;
-    private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
+    private final AppUserDetailsService userDetailsService;
+
+
+
+
+//    add a new espense
+    public ExpenseDto addExpense(ExpenseDto dto) {
+        ProfileEntity profile = userDetailsService.getCurrentProfile();
+        CategoryEntity category= categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        ExpenseEntity newExpense= toEntity(dto, profile, category);
+        newExpense=expenseRepository.save(newExpense);
+        return toDto(newExpense);
+
+    }
+
+
+// retrieves all expenses for  current month , based on the start and end date
+  public List<ExpenseDto> getCurrentMonthExpensesForCurrentUser(){
+        ProfileEntity profile = userDetailsService.getCurrentProfile();
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = today.withDayOfMonth(1);
+        LocalDate endDate = today.withDayOfMonth(today.lengthOfMonth());
+        List<ExpenseEntity> list= expenseRepository.findByProfileIdAndDateBetween(profile.getId(),startDate,endDate);
+        return list.stream().map(this::toDto).toList();
+  }
+
+// delete expense by expense by id
+  public void deleteExpense(Long expenseId) {
+        ProfileEntity profile = userDetailsService.getCurrentProfile();
+        ExpenseEntity entity= expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+        if (entity.getProfile().getId().equals(profile.getId())) {
+            expenseRepository.delete(entity);
+        }
+        throw new RuntimeException("Unauthorized to delete expense");
+  }
+
 
     private ExpenseEntity toEntity(ExpenseDto dto , ProfileEntity profile, CategoryEntity category){
         return ExpenseEntity.builder()
-                .naame(dto.getName())
+                .name(dto.getName())
                 .icon(dto.getIcon())
                 .amount(dto.getAmount())
                 .date(dto.getDate())
@@ -29,11 +71,12 @@ public class ExpenseService {
     private ExpenseDto toDto(ExpenseEntity entity){
         return ExpenseDto.builder()
                 .id(entity.getId())
-                .name(entity.getNaame())
+                .name(entity.getName())
                 .icon(entity.getIcon())
                 .categoryId(entity.getCategory() != null ? entity.getCategory().getId() : null)
                 .categoryName(entity.getCategory() != null ? entity.getCategory().getName() : null)
                 .amount(entity.getAmount())
+                .date(entity.getDate())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

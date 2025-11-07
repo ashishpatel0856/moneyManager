@@ -23,7 +23,7 @@ public class ExpenseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String naame;
+    private String name;
     private String icon;
     private LocalDate date;
     private BigDecimal amount;
