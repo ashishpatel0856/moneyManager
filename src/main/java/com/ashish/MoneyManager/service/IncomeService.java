@@ -11,6 +11,7 @@ import com.ashish.MoneyManager.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -49,10 +50,26 @@ public class IncomeService {
         ProfileEntity profile = userDetailsService.getCurrentProfile();
         IncomeEntity entity=incomeRepository.findById(incomeId)
                 .orElseThrow(() -> new RuntimeException("income not found"));
-        if (entity.getProfile().getId().equals(profile.getId())) {
-            incomeRepository.delete(entity);
+        if (!entity.getProfile().getId().equals(profile.getId())) {
+            throw new RuntimeException("Unauthorized to delete income");
+
         }
-        throw new RuntimeException("Unauthorized to delete income");
+        incomeRepository.delete(entity);
+    }
+
+
+    // getting latest five incomes for current user
+    public List<IncomeDto> getLast5IncomesForCurrentUser(){
+        ProfileEntity profile = userDetailsService.getCurrentProfile();
+        List<IncomeEntity> list = incomeRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+        return list.stream().map(this::toDto).toList();
+    }
+
+    // get total income for current user
+    public BigDecimal getTotalIncomeForCurrentUser(){
+        ProfileEntity profile = userDetailsService.getCurrentProfile();
+        BigDecimal total = incomeRepository.findTotalIncomeByProfileId(profile.getId());
+        return total != null ? total : BigDecimal.ZERO;
     }
 
     private IncomeEntity toEntity(IncomeDto dto , ProfileEntity profile, CategoryEntity category){

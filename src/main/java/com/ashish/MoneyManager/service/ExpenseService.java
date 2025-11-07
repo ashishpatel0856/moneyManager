@@ -9,6 +9,7 @@ import com.ashish.MoneyManager.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -49,12 +50,27 @@ public class ExpenseService {
         ProfileEntity profile = userDetailsService.getCurrentProfile();
         ExpenseEntity entity= expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new RuntimeException("Expense not found"));
-        if (entity.getProfile().getId().equals(profile.getId())) {
-            expenseRepository.delete(entity);
+        if (!entity.getProfile().getId().equals(profile.getId())) {
+            throw new RuntimeException("Unauthorized to delete expense");
+
         }
-        throw new RuntimeException("Unauthorized to delete expense");
+      expenseRepository.delete(entity);
   }
 
+
+  // getting latest five expenses for current user
+    public List<ExpenseDto> getLatest5ExpensesForCurrentUser(){
+        ProfileEntity profile = userDetailsService.getCurrentProfile();
+        List<ExpenseEntity> list = expenseRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+        return list.stream().map(this::toDto).toList();
+    }
+
+    // get tatal expenses for current user
+    public BigDecimal getTotalExpensesForCurrentUser(){
+        ProfileEntity profile = userDetailsService.getCurrentProfile();
+        BigDecimal total = expenseRepository.findTotalExpenseByProfileId(profile.getId());
+        return total != null ? total : BigDecimal.ZERO;
+    }
 
     private ExpenseEntity toEntity(ExpenseDto dto , ProfileEntity profile, CategoryEntity category){
         return ExpenseEntity.builder()

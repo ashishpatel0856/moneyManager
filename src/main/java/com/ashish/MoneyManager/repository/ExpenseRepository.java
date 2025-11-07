@@ -12,14 +12,14 @@ import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<ExpenseEntity,Long> {
 
-//    List<ExpenseEntity> findByProfileIdOrderByDateDesc(Long profileId);
-//
-//    List<ExpenseEntity> findTop5ByProfileIdOrderByDateDesc(Long profileId);
-//
-//    @Query("SELECT SUM(e.amount) FROM ExpenseEntity  e WHERE i.profile.id = :profileId")
-//     BigDecimal findTotalExpenseByProfileId(@Param("profileId") Long ProfileId);
-//
-//    List<ExpenseEntity> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(Long profileId, LocalDate startDate, LocalDate endDate, String keyword, Sort sort);
-//
+    List<ExpenseEntity> findByProfileIdOrderByDateDesc(Long profileId);
+
+    List<ExpenseEntity> findTop5ByProfileIdOrderByDateDesc(Long profileId);
+
+    @Query("SELECT SUM(e.amount) FROM ExpenseEntity  e WHERE i.profile.id = :profileId")
+     BigDecimal findTotalExpenseByProfileId(@Param("profileId") Long ProfileId);
+
+    List<ExpenseEntity> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(Long profileId, LocalDate startDate, LocalDate endDate, String keyword, Sort sort);
+
     List<ExpenseEntity> findByProfileIdAndDateBetween(Long profileId, LocalDate startDate ,LocalDate endDate);
 }

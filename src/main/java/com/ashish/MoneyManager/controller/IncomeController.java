@@ -31,7 +31,7 @@ public class IncomeController {
 
     @DeleteMapping("/{incomeId}")
     public ResponseEntity<Void> deleteIncome(@PathVariable Long incomeId){
-        incomeService.deleteExpense(incomeId);
+        incomeService.deleteIncome(incomeId);
         return ResponseEntity.noContent().build();
     }
 }
