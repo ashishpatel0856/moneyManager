@@ -1,63 +1,63 @@
-#show the name of github ui
-name: Spring Boot CI - Java 21
-
-# when ci cd pipeline trigger(run)
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-
-
-#create a virtural machine
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    # test multiple java version
-    strategy:
-      matrix:
-        java-version: [17]
-
-
-
-    steps:
-      # 1Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Set up Java 21 with Maven cache
-      - name: Set up Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
-
-      #  Verify Java installation when java proper install or not
-      - name: Verify Java Installation
-        run: java -version
-
-      # Build project (without running tests)
-      - name: Build Project (skip tests)
-        run: mvn clean package -DskipTests
-
-      # Run tests separately (with test profile)
-      - name: Run Tests
-        run: mvn test -B -Dspring.profiles.active=test
-
-      #  Upload test reports only if tests fail
-      - name: Upload Test Reports (on failure)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: target/surefire-reports/
-
-      # Upload the generated JAR as a build artifact (on success)
-      - name: Upload Build Artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Money-Manager-jar
-          path: target/*.jar
+##show the name of github ui
+#name: Spring Boot CI - Java 21
+#
+## when ci cd pipeline trigger(run)
+#on:
+#  push:
+#    branches: [ main, develop ]
+#  pull_request:
+#    branches: [ main, develop ]
+#
+#
+##create a virtural machine
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#
+#    # test multiple java version
+#    strategy:
+#      matrix:
+#        java-version: [17]
+#
+#
+#
+#    steps:
+#      # 1Checkout the repository
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      # Set up Java 21 with Maven cache
+#      - name: Set up Java ${{ matrix.java-version }}
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: ${{ matrix.java-version }}
+#          distribution: 'temurin'
+#          cache: 'maven'
+#
+#      #  Verify Java installation when java proper install or not
+#      - name: Verify Java Installation
+#        run: java -version
+#
+#      # Build project (without running tests)
+#      - name: Build Project (skip tests)
+#        run: mvn clean package -DskipTests
+#
+#      # Run tests separately (with test profile)
+#      - name: Run Tests
+#        run: mvn test -B -Dspring.profiles.active=test
+#
+#      #  Upload test reports only if tests fail
+#      - name: Upload Test Reports (on failure)
+#        if: failure()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: test-reports
+#          path: target/surefire-reports/
+#
+#      # Upload the generated JAR as a build artifact (on success)
+#      - name: Upload Build Artifact
+#        if: success()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: Money-Manager-jar
+#          path: target/*.jar
